@@ -5,8 +5,8 @@ SUBVERSION1=.9310_Linux
 LOCATION1=http://malideveloper.arm.com/downloads
 TARBALL1=$(MALISDK)$(SUBVERSION1).tar.gz
 
-GLESLIBS=mali-libs-v2
-LOCATION2=https://github.com/linux-sunxi/mali-libs/tarball/master
+GLESLIBS=sunxi-mali
+LOCATION2=https://github.com/linux-sunxi/sunxi-mali
 TARBALL2=$(GLESLIBS).tar.gz
 
 all: .installed
@@ -41,7 +41,7 @@ $(TARBALLS)/$(TARBALL1):
 ifeq ($(USEARMHF), 1)
 	(	cd tmp &&\
 		tar xvfz $(TARBALLS)/$(TARBALL2) &&\
-		mv linux-sunxi-mali-libs*/lib/r3p0/armhf/framebuffer ../lib &&\
+		mv sunxi-mali/lib/mali/r3p0/armhf/framebuffer ../lib &&\
 		cd .. &&\
 		rm -f lib/Makefile &&\
 		rm -r tmp\
@@ -54,7 +54,7 @@ ifeq ($(USEARMHF), 1)
 else
 	(	cd tmp &&\
 		tar xvfz $(TARBALLS)/$(TARBALL2) &&\
-		mv linux-sunxi-mali-libs*/lib/r2p4/armel/framebuffer ../lib &&\
+		mv sunxi-mali/lib/mali/r2p4/armel/framebuffer ../lib &&\
 		cd .. &&\
 		rm -f lib/Makefile &&\
 		rm -r tmp\
@@ -64,7 +64,12 @@ endif
 
 $(TARBALLS)/$(TARBALL2):
 	install -d $(TARBALLS)
-	$(WGET) $(LOCATION2) -O $(TARBALLS)/$(TARBALL2)
-	
+	cd $(TARBALLS) &&\
+	git clone --force https://github.com/linux-sunxi/sunxi-mali.git &&\
+	cd $(GLESLIBS) &&\
+	git submodule init &&\
+	git submodule update &&\
+	cd .. &&\
+	tar -zcvf $(GLESLIBS).tar.gz $(GLESLIBS)
 clean:
 	rm -rf .installed .lib lib .include include
